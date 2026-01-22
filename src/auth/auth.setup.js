@@ -16,13 +16,13 @@ import { user } from '../data/users.js';
   await page.getByRole('button', { name: 'Login' }).click();
   await page.waitForURL('**/#/');
 
-  // ✅ создаём папку заранее
+  //  создаём папку 
   const authDir = path.join(process.cwd(), 'src', 'auth');
   fs.mkdirSync(authDir, { recursive: true });
 
   const authFile = path.join(authDir, 'auth.json');
 
-  // ✅ сохраняем storageState в корректный путь
+  // сохраняем storageState 
   await context.storageState({ path: authFile });
 
   console.log('auth.json exists:', fs.existsSync(authFile), 'Path:', authFile);

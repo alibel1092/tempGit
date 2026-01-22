@@ -8,7 +8,6 @@ import { ArticlePage } from '../src/pages/article.page.js';
 import { ArticleEditorPage } from '../src/pages/article_editor.page.js';
 
 
-const url = 'https://realworld.qa.guru/';
 
 const newArticle = {
     title: faker.lorem.sentence({ min: 1, max: 5 }),
@@ -19,7 +18,6 @@ const newArticle = {
 
 test('User can create new article, Page Object', async ({ page }) => {
     const {title, description, body, tags} = newArticle;
-
     const homePage = new HomePage(page, user.testUser);
     const newArticlePage = new NewArticlePage(page);
     const articlePage = new ArticlePage(page, title, body);
@@ -80,5 +78,46 @@ test('User can delete article, Page Object', async ({ page }) => {
     
        await expect(page).toHaveURL('/#/');
   
+
+});
+
+test('User can add article to Favorites, Page Object', async ({ page }) => {
+    const homePage = new HomePage(page, user.testUser);
+    const profilePage = new ProfilePage(page, user.testUser, ArticlePage.articleTitle);
+        
+
+    await page.goto('/');
+
+    await homePage.openUserMenu();
+    await homePage.profileLink.click();
+    await profilePage.openMyArticles();
+    const articleTitle = await profilePage.getFirstArticleTitle();
+    await profilePage.doArticleFavorite();
+    await profilePage.openMyFavoritedArticles();
+
+        await expect(
+  profilePage.favoritedArticleByTitle(articleTitle)).toBeVisible()
+
+});
+
+test('User can delete article from Favorites, Page Object', async ({ page }) => {
+    const homePage = new HomePage(page, user.testUser);
+    const profilePage = new ProfilePage(page, user.testUser, ArticlePage.articleTitle);
+        
+
+    await page.goto('/');
+
+    await homePage.openUserMenu();
+    await homePage.profileLink.click();
+    await profilePage.openMyFavoritedArticles();
+    const articleTitle = await profilePage.getFirstArticleTitle();
+    await profilePage.favoritedArticleByTitle(articleTitle).first().waitFor({ state: 'visible' });
+    await profilePage.openMyArticles();
+    await profilePage.toggleFavoriteForArticle(articleTitle);
+    await profilePage.openMyFavoritedArticles();
+    
+
+        await expect(
+  profilePage.favoritedArticleByTitle(articleTitle)).toHaveCount(0);
 
 });
