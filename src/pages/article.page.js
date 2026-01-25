@@ -16,5 +16,13 @@ export class ArticlePage {
       
                 }
         //бизнес логика страницы
+                //редактировать статью
+        async EditArticle() {
+            await this.editButtonBanner.click();
+        }
+                //удалить статью
+        async DeleteArticle() {
+            await this.deleteButtonBanner.click();
+        }
 
     }

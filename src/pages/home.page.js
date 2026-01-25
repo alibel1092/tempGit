@@ -13,11 +13,19 @@ export class HomePage {
 
                 }
         //бизнес логика страницы
+
+            //открыть меню пользователя
         async openUserMenu() {
             await this.userMenu.click();
                     }
+            //перейти в профиль пользователя            
         async gotoProfile() {
             await this.openUserMenu();
             await this.profileLink.click();
+        }
+            //создать новую статью         
+        async createNewArticle() {
+            await this.openUserMenu();
+            await this.newArticleLink.click();
         }
 }

@@ -10,8 +10,11 @@ export class ArticleEditorPage {
         this.updateButton = page.getByRole('button', { type: 'submit' });
                 }
         //бизнес логика страницы
-        async CreateArticle(title, description, body, tags) {
-            await this.articleTitle.click();
-            await this.articleTitle.fill(title);   }
+
+            //обновить название статьи
+        async UpdateArticle(title) {
+            await this.articleTitle.fill(title + '22');
+            await this.updateButton.click();
+            }
 
         }

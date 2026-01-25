@@ -6,6 +6,7 @@ import { ProfilePage } from '../src/pages/profile.page.js';
 import { NewArticlePage } from '../src/pages/new_article.page.js';
 import { ArticlePage } from '../src/pages/article.page.js';
 import { ArticleEditorPage } from '../src/pages/article_editor.page.js';
+import { createArticle } from '../src/helpers/article.helper.js';
 
 
 
@@ -16,6 +17,7 @@ const newArticle = {
     tags: faker.lorem.words({ min: 1, max: 3 })
 }
 
+
 test('User can create new article, Page Object', async ({ page }) => {
     const {title, description, body, tags} = newArticle;
     const homePage = new HomePage(page, user.testUser);
@@ -24,11 +26,23 @@ test('User can create new article, Page Object', async ({ page }) => {
 
     await page.goto('/');
 
-    await homePage.newArticleLink.click();
+    await homePage.createNewArticle();
     await newArticlePage.CreateArticle(title, description, body, tags);
     
     await expect(articlePage.articleTitle).toHaveText(title);
   
+
+});
+
+//создание статьи перед каждым тестом
+test.beforeEach(async ({ page }) => {
+    const articleData = {
+    title: newArticle.title + '11',
+    description: newArticle.description,
+    body: newArticle.body,
+    tags: newArticle.tags
+  };
+  await createArticle(page, user.testUser, articleData);
 
 });
 
@@ -41,44 +55,39 @@ test('User can edit article, Page Object', async ({ page }) => {
 
     await page.goto('/');
 
-    await homePage.openUserMenu();
-    await homePage.profileLink.click();
+    
+    await homePage.gotoProfile();
     await profilePage.openMyArticles();
     await profilePage.gotoFirstArticle();
     await expect(articlePage.articleTitle).toBeVisible();
 
     const oldTitle = await articlePage.articleTitle.innerText();
 
-    await articlePage.editButtonBanner.click();
-    await articlePageEditor.articleTitle.fill(oldTitle + '22');
-    await articlePageEditor.updateButton.click();
+    await articlePage.EditArticle();
+    await articlePageEditor.UpdateArticle(oldTitle);
 
     await expect(articlePage.articleTitle).toHaveText(oldTitle + '22');
 
   
-
 });
 
 test('User can delete article, Page Object', async ({ page }) => {
     const homePage = new HomePage(page, user.testUser);
     const profilePage = new ProfilePage(page, user.testUser, ArticlePage.articleTitle);
     const articlePage = new ArticlePage(page);
-    const articlePageEditor = new ArticleEditorPage(page);
-
+    
     await page.goto('/');
 
-    await homePage.openUserMenu();
-    await homePage.profileLink.click();
+    await homePage.gotoProfile();
     await profilePage.openMyArticles();
     await profilePage.gotoFirstArticle();
     page.on('dialog', async dialog => {
     await dialog.accept();
      });
-    await articlePage.deleteButtonBanner.click();
+    await articlePage.DeleteArticle();
     
        await expect(page).toHaveURL('/#/');
   
-
 });
 
 test('User can add article to Favorites, Page Object', async ({ page }) => {
@@ -88,8 +97,7 @@ test('User can add article to Favorites, Page Object', async ({ page }) => {
 
     await page.goto('/');
 
-    await homePage.openUserMenu();
-    await homePage.profileLink.click();
+    await homePage.gotoProfile();
     await profilePage.openMyArticles();
     const articleTitle = await profilePage.getFirstArticleTitle();
     await profilePage.doArticleFavorite();
@@ -107,8 +115,7 @@ test('User can delete article from Favorites, Page Object', async ({ page }) => 
 
     await page.goto('/');
 
-    await homePage.openUserMenu();
-    await homePage.profileLink.click();
+    await homePage.gotoProfile();
     await profilePage.openMyFavoritedArticles();
     const articleTitle = await profilePage.getFirstArticleTitle();
     await profilePage.favoritedArticleByTitle(articleTitle).first().waitFor({ state: 'visible' });
